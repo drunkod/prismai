@@ -1,5 +1,13 @@
 // The Prompt API: https://developer.chrome.com/docs/extensions/ai/prompt-api
 export const useThePromptApi = async () => {
+  if (!('LanguageModel' in self)) {
+    console.warn("LanguageModel API is not available.");
+    const promptApi = async () => {
+      return Promise.reject(new Error('LanguageModel API is not supported in this environment.'));
+    }
+    return { promptApi };
+  }
+
   // const availability = await LanguageModel.availability();
   const session = await LanguageModel.create({
     initialPrompts: [
