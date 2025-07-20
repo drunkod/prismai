@@ -6,3 +6,4 @@ export { default as IconMagGlass } from './IconMagGlass.vue';
 export { default as IconTranslate } from './IconTranslate.vue';
 export { default as IconSummary } from './IconSummary.vue';
 export { default as IconShield } from './IconShield.vue';
+export { default as IconCopy } from './IconCopy.vue';

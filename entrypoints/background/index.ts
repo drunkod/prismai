@@ -6,7 +6,7 @@ type RequestPayload = {
   textSelection: string;
 }
 
-let fetchPromptApi: (actionType: Exclude<PreferenceKeys, 'translate' | 'summarize'>, textSelection: string) => Promise<string>;
+let fetchPromptApi: ((actionType: Exclude<PreferenceKeys, 'translate' | 'summarize'>, textSelection: string) => Promise<string>) | undefined;
 
 export default defineBackground(() => {
   // Handle extension installation - open welcome page
@@ -20,8 +20,12 @@ export default defineBackground(() => {
   });
 
   (async () => {
-    const { promptApi } = await useThePromptApi();
-    fetchPromptApi = promptApi;
+    try {
+      const { promptApi } = await useThePromptApi();
+      fetchPromptApi = promptApi;
+    } catch (error) {
+      console.error("Failed to initialize The Prompt API:", error);
+    }
   })();
 
   const getLanguagePreference = async () => {
@@ -35,10 +39,17 @@ export default defineBackground(() => {
       switch (actionType) {
         case 'translate':
           const language = await getLanguagePreference();
-          return await useTranslatorApi(language, textSelection);
+          const translatorResult = await useTranslatorApi(language, textSelection);
+          if (translatorResult instanceof Error) throw translatorResult;
+          return translatorResult;
         case 'summarize':
-          return await useSummarizerApi(textSelection);
+          const summarizerResult = await useSummarizerApi(textSelection);
+          if (summarizerResult instanceof Error) throw summarizerResult;
+          return summarizerResult;
         default:
+          if (!fetchPromptApi) {
+            throw new Error("Prompt API is not available.");
+          }
           return await fetchPromptApi(actionType, textSelection);
       }
     } catch (error) {
