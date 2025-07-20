@@ -1,5 +1,5 @@
 // Summarizer API: https://developer.chrome.com/docs/ai/summarizer-api
-export const useSummarizerApi = async (textSelection: string) => {
+export const useSummarizerApi = async (textSelection: string): Promise<string | Error> => {
   const options: SummarizerCreateCoreOptions = {
     type: 'tldr',
     format: 'plain-text',
@@ -7,8 +7,12 @@ export const useSummarizerApi = async (textSelection: string) => {
   }
 
   if ('Summarizer' in self) {
-    const summarizer = await Summarizer.create(options);
-    return await summarizer.summarize(textSelection);
+    try {
+      const summarizer = await Summarizer.create(options);
+      return await summarizer.summarize(textSelection);
+    } catch (e) {
+        return new Error('Could not create or use summarizer.')
+    }
   }
 
   return new Error('Summarizer API is not supported in this environment.');
