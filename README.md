@@ -43,8 +43,10 @@ pnpm install
 
 # Run the project
 pnpm dev
-```
 
+# Run the playwrite
+pnpm install && pnpm run build && pnpm run e2e
+```
 To load the extension in Chrome:
 
 1. Open [chrome://extensions/](chrome://extensions/) in your Chrome browser.
