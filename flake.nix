@@ -26,7 +26,9 @@
         chromiumPath = "${browsers}/chromium-${chromiumRevision}/chrome-linux/chrome";
       in
       {
-        devShells.default = pkgs.mkShell {
+        devShells = {
+        
+        default = pkgs.mkShell {
           buildInputs = with pkgs; [
             nodejs_20
             corepack
@@ -46,6 +48,31 @@
             echo "✅ Playwright executable path is dynamically set to: $CHROMIUM_EXECUTABLE_PATH"
           '';
         };
+        # The new shell for headless/cloud/CI environments
+      headless = pkgs.mkShell {
+            buildInputs = with pkgs; [
+              nodejs_20
+              corepack
+              git
+              pw_driver
+              # Add xvfb-run and its dependencies for a virtual screen
+              xorg.xhost
+              xorg.xauth
+              xvfb-run
+            ];
+
+            shellHook = ''
+              export PLAYWRIGHT_BROWSERS_PATH="${browsers}"
+              export PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=true
+              export CHROMIUM_EXECUTABLE_PATH="${chromiumPath}"
+              # This new variable will tell our test fixture to run headless
+              export BROWSER_HEADLESS=true
+              echo "✅ Headless environment is ready."
+              echo "✅ Executable path: $CHROMIUM_EXECUTABLE_PATH"
+            '';
+          };
+
+      };
       }
     );
 }

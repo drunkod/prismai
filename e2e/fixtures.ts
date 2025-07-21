@@ -10,18 +10,19 @@ export const test = base.extend<{
   extensionId: string;
 }>({
   context: async ({}, use) => {
-    // Check for our custom environment variable.
     if (!process.env.CHROMIUM_EXECUTABLE_PATH) {
       throw new Error("CHROMIUM_EXECUTABLE_PATH environment variable is not set.");
     }
 
-    // Explicitly pass the executablePath to force Playwright to use our browser.
     const context = await chromium.launchPersistentContext("", {
-      headless: false,
+      // Conditionally set headless mode based on our environment variable
+      headless: process.env.BROWSER_HEADLESS === 'true',
       executablePath: process.env.CHROMIUM_EXECUTABLE_PATH,
       args: [
         `--disable-extensions-except=${pathToExtension}`,
         `--load-extension=${pathToExtension}`,
+        // Add the --no-sandbox arg, which is often required in CI/container environments
+        '--no-sandbox',
       ],
     });
     await use(context);
