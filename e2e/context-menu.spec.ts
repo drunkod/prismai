@@ -39,7 +39,7 @@ test.describe("PrismAI Context Menu", () => {
 
     await page.waitForTimeout(400);
 
-    await page.pause();
+    // await page.pause();
     // Wait for the PrismAI container to appear (it's in a Shadow DOM)
     const prismaiContainer = page.locator(
       "prismai-ui >> .prismai-container"
