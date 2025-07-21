@@ -21,7 +21,7 @@
     "webext-bridge": "^6.0.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.45.1",
+    "@playwright/test": "^1.52.0",
     "@types/dom-chromium-ai": "^0.0.9",
     "@wxt-dev/module-vue": "^1.0.2",
     "typescript": "5.8.3",

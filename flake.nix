@@ -1,8 +1,11 @@
+# /home/alex/Documents/projects/extentions/prismai/flake.nix
+
 {
   description = "A development environment for the Prismai browser extension.";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
+    # You are using a nixpkgs version that contains playwright v1.52.0, which is perfect.
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05"; # or the specific commit you have
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -10,8 +13,17 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
-        browsers = pkgs.playwright-driver.browsers;
-        chromiumPath = "${browsers}/chromium-1169/chrome-linux/chrome";
+
+        # --- THIS IS THE ROBUST LOGIC, DERIVED FROM THE SOURCE ---
+        # 1. Get the playwright-driver package, which is an alias for playwright-core.
+        pw_driver = pkgs.playwright-driver;
+
+        # 2. Access the passthru attributes to get the browsers directory and revision number.
+        browsers = pw_driver.passthru.browsers;
+        chromiumRevision = pw_driver.passthru.browsersJSON.chromium.revision;
+
+        # 3. Construct the full, dynamic path to the executable.
+        chromiumPath = "${browsers}/chromium-${chromiumRevision}/chrome-linux/chrome";
       in
       {
         devShells.default = pkgs.mkShell {
@@ -19,16 +31,19 @@
             nodejs_20
             corepack
             git
-            playwright-driver.browsers
+            # This provides the necessary browser binaries and libraries.
+            pw_driver
           ];
 
           shellHook = ''
             export PLAYWRIGHT_BROWSERS_PATH="${browsers}"
             export PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=true
+
+            # We must use our own custom variable to reliably force Playwright to use this path.
             export CHROMIUM_EXECUTABLE_PATH="${chromiumPath}"
+
             echo "✅ Nix environment for Prismai is ready."
-            echo "✅ Playwright will use browsers from: $PLAYWRIGHT_BROWSERS_PATH"
-            echo "✅ Playwright will use CHROMIUM_EXECUTABLE_PATH: $CHROMIUM_EXECUTABLE_PATH"
+            echo "✅ Playwright executable path is dynamically set to: $CHROMIUM_EXECUTABLE_PATH"
           '';
         };
       }
