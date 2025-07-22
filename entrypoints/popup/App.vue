@@ -1,20 +1,39 @@
-<script lang="ts" setup>
-import SplashScreen from "./components/SplashScreen.vue";
-import SettingsScreen from "./components/SettingsScreen.vue";
-</script>
-
 <template>
-  <Suspense>
-    <main class="popup-container">
-      <SplashScreen />
-      <SettingsScreen />
+  <div class="main-container">
+    <header class="header-container">
+      <LogoPrismai />
+      <div class="header-controls">
+        <button @click="navigateTo('settings')">
+          <IconSettings />
+        </button>
+      </div>
+    </header>
+
+    <main class="content-container">
+      <template v-if="currentPage === 'context-manager'">
+        <ContextManagerScreen />
+      </template>
+      <template v-else-if="currentPage === 'settings'">
+        <SettingsScreen />
+      </template>
+      <template v-else>
+        <SplashScreen />
+      </template>
     </main>
-  </Suspense>
+  </div>
 </template>
 
-<style scoped>
-.popup-container {
-  width: 100%;
-  height: 100%;
-}
+<script setup lang="ts">
+import { usePopupNavigation } from '@/composables/popup-navigation';
+import LogoPrismai from '@/components/LogoPrismai.vue';
+import IconSettings from '@/components/icons/IconSettings.vue';
+import SettingsScreen from './components/SettingsScreen.vue';
+import SplashScreen from './components/SplashScreen.vue';
+import ContextManagerScreen from './components/ContextManagerScreen.vue';
+
+const { currentPage, updatePage: navigateTo } = usePopupNavigation();
+</script>
+
+<style>
+/* Add your styles here */
 </style>

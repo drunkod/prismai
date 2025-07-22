@@ -1,10 +1,11 @@
+import { storage } from 'wxt/storage';
+
 // WXT Storage docs: https://wxt.dev/storage.html#defining-storage-items
-export const popupCurrentPage = storage.defineItem<string>(
+export const popupCurrentPage = storage.defineItem(
   'local:popupCurrentPage',
   {
-    fallback: 'splash-screen',
-    version: 1,
-  },
+    defaultValue: 'context-manager',
+  }
 );
 
 type WordPreferences = {
@@ -38,10 +39,10 @@ export const defaultPreferences = {
     summarize: true,
   }
 }
-export const preferences = storage.defineItem<Preferences>(
+
+export const preferences = storage.defineItem(
   'local:preferences',
   {
-    fallback: defaultPreferences,
-    version: 1,
-  },
+    defaultValue: defaultPreferences,
+  }
 );
