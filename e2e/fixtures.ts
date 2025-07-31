@@ -2,8 +2,13 @@
 
 import { test as base, chromium, type BrowserContext } from "@playwright/test";
 import path from "path";
+import fs from "fs";
+import { execSync } from "child_process";
 
-const pathToExtension = path.resolve(".output/chrome-mv3");
+// Path to your extension ZIP file
+const extensionZip = path.resolve("hide-me-Chrome-Chrome.zip");
+// const extensionZip = path.resolve("Planet-VPN-Chrome.zip");
+const extractedPath = path.resolve(".test-extension");
 
 export const test = base.extend<{
   context: BrowserContext;
@@ -14,14 +19,19 @@ export const test = base.extend<{
       throw new Error("CHROMIUM_EXECUTABLE_PATH environment variable is not set.");
     }
 
+    // Extract the extension if not already done
+    if (!fs.existsSync(extractedPath)) {
+      fs.mkdirSync(extractedPath, { recursive: true });
+      execSync(`unzip -o "${extensionZip}" -d "${extractedPath}"`);
+      console.log(`Extracted extension to: ${extractedPath}`);
+    }
+
     const context = await chromium.launchPersistentContext("", {
-      // Conditionally set headless mode based on our environment variable
       headless: process.env.BROWSER_HEADLESS === 'true',
       executablePath: process.env.CHROMIUM_EXECUTABLE_PATH,
       args: [
-        `--disable-extensions-except=${pathToExtension}`,
-        `--load-extension=${pathToExtension}`,
-        // Add the --no-sandbox arg, which is often required in CI/container environments
+        `--disable-extensions-except=${extractedPath}`,
+        `--load-extension=${extractedPath}`,
         '--no-sandbox',
       ],
     });
@@ -37,5 +47,6 @@ export const test = base.extend<{
     await use(extensionId);
   },
 });
+
 
 export const expect = test.expect;

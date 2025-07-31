@@ -24,6 +24,12 @@ web-ext.config.ts
 *.njsproj
 *.sln
 *.sw?
+*.zip
 
 # Private files
 .env
+# Add to your .gitignore file
+.test-extension/
+test-results/
+playwright-report/
+e2e/v2ray-configs/
